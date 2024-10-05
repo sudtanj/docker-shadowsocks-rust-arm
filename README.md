@@ -52,7 +52,7 @@ $ docker run -d \
   -p 8388:8388/udp \
   --restart always \
   --name shadowsocks \
-  ghcr.io/akafeng/shadowsocks-rust
+  sudtanj/shadowsocks-rust-arm
 ```
 
 ### Display Config
@@ -79,5 +79,5 @@ $ docker run -d \
   -e OBFS=ws \
   --restart always \
   --name shadowsocks \
-  ghcr.io/akafeng/shadowsocks-rust
+  sudtanj/shadowsocks-rust-arm
 ```

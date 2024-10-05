@@ -1,12 +1,7 @@
 FROM --platform=linux/arm64/v8 debian:trixie-slim AS builder
 
 ARG SS_VERSION="1.21.0"
-ARG SS_URL="https://github.com/shadowsocks/shadowsocks-rust/releases/download/v${SS_VERSION}/"
-ARG SS_FILENAME="shadowsocks-v${SS_VERSION}.aarch64-unknown-linux-gnu.tar.xz"
-
-ARG V2RAY_PLUGIN_VERSION="1.3.2"
-ARG V2RAY_PLUGIN_URL="https://github.com/shadowsocks/v2ray-plugin/releases/download/v${V2RAY_PLUGIN_VERSION}/"
-ARG V2RAY_PLUGIN_FILENAME="v2ray-plugin-linux-arm64-v${V2RAY_PLUGIN_VERSION}.tar.gz"
+ARG V2RAY_PLUGIN_VERSION="5.17.0"
 
 RUN set -eux \
     && apt-get update -qyy \
@@ -14,30 +9,17 @@ RUN set -eux \
         ca-certificates \
         wget \
         xz-utils \
+        tar \
     && rm -rf /var/lib/apt/lists/* /var/log/* \
     \
-    && ARCH=`uname -m` \
-    && case "$ARCH" in \
-            "x86_64") \
-                SS_FILENAME="shadowsocks-v${SS_VERSION}.x86_64-unknown-linux-gnu.tar.xz" \
-                V2RAY_PLUGIN_FILENAME="v2ray-plugin-linux-amd64-v${V2RAY_PLUGIN_VERSION}.tar.gz" \
-                ;; \
-            "aarch64") \
-                SS_FILENAME="shadowsocks-v${SS_VERSION}.aarch64-unknown-linux-gnu.tar.xz" \
-                V2RAY_PLUGIN_FILENAME="v2ray-plugin-linux-arm64-v${V2RAY_PLUGIN_VERSION}.tar.gz" \
-                ;; \
-        esac \
-    \
-    && wget -O shadowsocks.tar.xz ${SS_URL}${SS_FILENAME} \
+    && wget -O shadowsocks.tar.xz https://github.com/shadowsocks/shadowsocks-rust/releases/download/v${SS_VERSION}/shadowsocks-v${SS_VERSION}.aarch64-unknown-linux-gnu.tar.xz \
     && tar -xvf shadowsocks.tar.xz -C /usr/local/bin/ \
     \
-    && wget -O v2ray_plugin.tar.gz ${V2RAY_PLUGIN_URL}${V2RAY_PLUGIN_FILENAME} \
+    && wget -O v2ray_plugin.tar.gz https://github.com/teddysun/v2ray-plugin/releases/download/v${V2RAY_PLUGIN_VERSION}/v2ray-plugin-linux-arm64-v${V2RAY_PLUGIN_VERSION}.tar.gz \
     && tar -xzvf v2ray_plugin.tar.gz -C /usr/local/bin/ \
     && mv /usr/local/bin/v2ray-plugin* /usr/local/bin/v2ray-plugin \
     \
     && rm -rf shadowsocks.tar.xz v2ray_plugin.tar.gz
-
-######
 
 FROM --platform=linux/arm64/v8 debian:trixie-slim
 
