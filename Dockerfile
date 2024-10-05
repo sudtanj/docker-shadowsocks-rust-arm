@@ -1,43 +1,28 @@
-FROM debian:bookworm-slim AS builder
+FROM --platform=linux/arm64/v8 debian:trixie-slim AS builder
 
-ARG SS_VERSION="1.15.4"
+ARG SS_VERSION="1.21.0"
 ARG SS_URL="https://github.com/shadowsocks/shadowsocks-rust/releases/download/v${SS_VERSION}/"
+ARG SS_FILENAME="shadowsocks-v${SS_VERSION}.aarch64-unknown-linux-gnu.tar.xz"
 
 ARG V2RAY_PLUGIN_VERSION="1.3.2"
 ARG V2RAY_PLUGIN_URL="https://github.com/shadowsocks/v2ray-plugin/releases/download/v${V2RAY_PLUGIN_VERSION}/"
+ARG V2RAY_PLUGIN_FILENAME="v2ray-plugin-linux-arm64-v${V2RAY_PLUGIN_VERSION}.tar.gz"
 
-RUN set -eux \
-    && apt-get update -qyy \
-    && apt-get install -qyy --no-install-recommends --no-install-suggests \
-        ca-certificates \
-        wget \
-        xz-utils \
-    && rm -rf /var/lib/apt/lists/* /var/log/* \
-    \
-    && ARCH=`uname -m` \
-    && case "$ARCH" in \
-            "x86_64") \
-                SS_FILENAME="shadowsocks-v${SS_VERSION}.x86_64-unknown-linux-gnu.tar.xz" \
-                V2RAY_PLUGIN_FILENAME="v2ray-plugin-linux-amd64-v${V2RAY_PLUGIN_VERSION}.tar.gz" \
-                ;; \
-            "aarch64") \
-                SS_FILENAME="shadowsocks-v${SS_VERSION}.aarch64-unknown-linux-gnu.tar.xz" \
-                V2RAY_PLUGIN_FILENAME="v2ray-plugin-linux-arm64-v${V2RAY_PLUGIN_VERSION}.tar.gz" \
-                ;; \
-        esac \
-    \
-    && wget -O shadowsocks.tar.xz ${SS_URL}${SS_FILENAME} \
-    && tar -xvf shadowsocks.tar.xz -C /usr/local/bin/ \
-    \
-    && wget -O v2ray_plugin.tar.gz ${V2RAY_PLUGIN_URL}${V2RAY_PLUGIN_FILENAME} \
-    && tar -xzvf v2ray_plugin.tar.gz -C /usr/local/bin/ \
-    && mv /usr/local/bin/v2ray-plugin* /usr/local/bin/v2ray-plugin \
-    \
-    && rm -rf shadowsocks.tar.xz v2ray_plugin.tar.gz
+RUN set -eux
+RUN apt-get update -qyy
+RUN apt-get install -qyy --no-install-recommends --no-install-suggests \
+            ca-certificates \
+            wget \
+            xz-utils
+RUN rm -rf /var/lib/apt/lists/* /var/log/*
+RUN wget -O shadowsocks.tar.xz ${SS_URL}${SS_FILENAME}
+RUN tar -xzvf v2ray_plugin.tar.gz -C /usr/local/bin/
+RUN mv /usr/local/bin/v2ray-plugin* /usr/local/bin/v2ray-plugin
+RUN rm -rf shadowsocks.tar.xz v2ray_plugin.tar.gz
 
 ######
 
-FROM debian:bookworm-slim
+FROM --platform=linux/arm64/v8 debian:trixie-slim
 
 ENV SERVER_ADDR="0.0.0.0"
 ENV SERVER_PORT="8388"
